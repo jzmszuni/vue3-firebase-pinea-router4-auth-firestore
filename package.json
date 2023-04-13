@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "firebase": "^9.19.0",
+    "nanoid": "^4.0.2",
     "pinia": "^2.0.33",
+    "valid-url": "^1.0.9",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
