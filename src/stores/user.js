@@ -12,38 +12,33 @@ import { auth }         from "../firebaseConfig"
 export const useUserStore = defineStore("userStore", () => {
   // variables
   const userData  = ref(null)
-  const loading   = ref(true)
-  const error     = ref(null)
+  const loading   = ref(false)
 
   // funciones
   const registerUser = async (email, password) => {
-    error.value = null
     loading.value = true
     try {
-      error.value = true
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(user)
       userData.value = { email: user.email, uid: user.uid }
       router.push("/")
     } catch (err) {
-      error.value = null
-      console.error(err)
+      loading.value = false
+      return err.code
     } finally {
       loading.value = false
     }
   }
 
   const loginUser = async (email, password) =>{
+    
     loading.value = true
-    error.value = null
     try {
-      error.value = true
       const { user } = await signInWithEmailAndPassword(auth, email, password)
       userData.value = { email: user.email, uid: user.uid }
       router.push("/")
     } catch (err) {
-      console.error(err)
-      error.value = false
+      loading.value = false
+      return err.code
       // Logica para manejo de errores
     } finally {
       loading.value = false
@@ -51,15 +46,16 @@ export const useUserStore = defineStore("userStore", () => {
   } 
   
   const logoutUser = async () => {
-    error.value = null
     loading.value = true
     try {
       await signOut(auth)
       userData.value = null
-      console.log("singed out! (Y)")
       router.push("/login")
-    } catch (error) {
-      console.error(err)
+    } catch (err) {
+      loading.value = false
+      return err.code
+    } finally {
+      loading.value = false
     }
   }
 
@@ -81,7 +77,6 @@ export const useUserStore = defineStore("userStore", () => {
   return {
     userData,
     loading,
-    error,
     registerUser,
     loginUser,
     logoutUser,

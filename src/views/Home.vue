@@ -1,52 +1,76 @@
 <template>
   <div>
+    
     <h1>Home</h1>
-
-    <form @submit.prevent="handleSubmit">
-      <input type="text" placeholder="Ingrese URL" v-model="url">
-      <button type="submit">Agregar</button>
-    </form>
-    <p v-if="!isValidUrl"> El link no es válido</p>
-
-    <p>{{ userStore.userData?.email }}</p>
-    <p v-if="databaseStore.loading"> Cargando...</p>
-    <ul v-else>
-      <li v-for=" i in databaseStore.documents" :key="i.id">
-        {{ i.name }}
-        <button @click="databaseStore.deleteUrl(i.id)">eliminar</button>
-        <button @click="router.push(`edit/${i.id}`)">editar</button>
-        <!-- <router-link :to="`edit/${i.id}`">Editar</router-link> -->
-      </li>
-    </ul>
+    <add-form></add-form>
+    <p v-if="databaseStore.loading">Cargando...</p>
+    <template v-if="!databaseStore.loading"> 
+      <a-space direction="vertical" style="width: 100%;">
+        <a-card 
+          v-for="i in databaseStore.documents" 
+          :key="i.id"
+          :title="i.short"
+          size="small"
+        >
+          <template #extra>
+            <a-space>
+              <a :href="i.name" target="_blank">go</a>
+              <a-popconfirm
+                title="Are you sure delete this?"
+                ok-text="Yes"
+                cancel-text="No"
+                @confirm="confirm(i.id)"
+                @cancel="cancel(i.name)"
+              > 
+                <a-button 
+                  danger 
+                  size="small"
+                  :disabled="databaseStore.loading"
+                  :loading="databaseStore.loading"
+                >
+                  delete
+                </a-button>
+              </a-popconfirm>
+              <a-button 
+                primary 
+                @click="router.push(`edit/${i.id}`)"
+                size="small"
+              >
+                edit
+              </a-button>
+            </a-space>
+          </template>
+          
+          <p>{{ i.name }}</p>
+        </a-card>
+      </a-space>
+    </template>
+    
   </div>
 </template>
 
 <script setup>
-  import { useUserStore } from "../stores/user.js";
-  import { useDatabaseStore } from "../stores/database";
-  import { ref } from "vue";
-  import { useRouter } from "vue-router";
-  import validUrl from 'valid-url';
+import { useDatabaseStore } from "../stores/database";
+import { useRouter }        from "vue-router";
+import { message }          from 'ant-design-vue';
 
-  const url           = ref('')
-  const isValidUrl    = ref(false);
-  const userStore     = useUserStore()
-  const databaseStore = useDatabaseStore()
-  const router        = useRouter()
+const databaseStore = useDatabaseStore();
+const router = useRouter();
 
-  const handleSubmit = () => {
-    isValidUrl.value = false;
-    if (validUrl.isWebUri(url.value)) {
-      isValidUrl.value = true;
-      databaseStore.addUrls(url.value)
-    } else {
-      isValidUrl.value = false;
-      console.error("Url No valida")
-    }
+const confirm = async (id) => {
+  const err = await databaseStore.deleteUrl(id)
+  console.log(err)
+  if (!err) {
+    message.success('url deleted!')
+  } else {
+    message.error(err)
   }
+}
+const cancel = (name) => {
+  message.info('oops! you not delete \"'+name+'\"!')
+}
 
-  databaseStore.getUrls()
 
-
+databaseStore.getUrls();
 
 </script>

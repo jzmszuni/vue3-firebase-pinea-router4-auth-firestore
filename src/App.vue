@@ -1,59 +1,79 @@
 <template>
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <nav>
-        <router-link 
-          to="/" 
-          v-if="userStore.userData"
-        >
-          Home | 
-        </router-link>
-        <router-link 
-          to="/login" 
-          v-if="!userStore.userData"
-        >
-          Login | 
-        </router-link>
-        <router-link 
-          to="/register" 
-          v-if="!userStore.userData"
-        >
-        Register | 
-        </router-link>
-        <button 
-          @click="userStore.logoutUser" 
-          v-if="userStore.userData"
-        >
+      <div class="logo"></div>
+      <a-menu 
+        v-model:selectedKeys="selectedKeys" 
+        theme="dark" 
+        mode="inline"
+      >
+        <a-menu-item key="home" v-if="userStore.userData">
+          <router-link to="/">
+            <desktop-outlined />
+            <span>Home</span>
+          </router-link>
+        </a-menu-item>
+        
+        <a-menu-item key="login" v-if="!userStore.userData">
+          <router-link to="/login">
+            <user-outlined />
+            <span>Login</span>
+          </router-link>
+        </a-menu-item>
+
+        <a-menu-item key="register" v-if="!userStore.userData">
+          <router-link to="/register">
+            <file-outlined />
+            <span>Register</span>
+          </router-link>
+        </a-menu-item>
+        <a-menu-item key="logout" v-if="userStore.userData" @click="userStore.logoutUser">
           logout
-        </button>
-      </nav>
+        </a-menu-item>
+      </a-menu>
     </a-layout-sider>
     <a-layout>
       <a-layout-header style="background: #fff; padding: 0" />
       <a-layout-content style="margin: 0 16px">
-        <router-view></router-view>
         <a-breadcrumb style="margin: 16px 0">
-          <a-breadcrumb-item>User</a-breadcrumb-item>
-          <a-breadcrumb-item>Bill</a-breadcrumb-item>
+          <a-breadcrumb-item>{{ userStore.userData?.email }}</a-breadcrumb-item>
+          <a-breadcrumb-item>Home</a-breadcrumb-item>
         </a-breadcrumb>
-        <div :style="{ padding: '24px', background: '#fff', minHeight: '360px' }">
-          Bill is a cat.
+        <div
+          :style="{ padding: '24px', background: '#fff', minHeight: '360px' }"
+        >
+          <router-view></router-view>
         </div>
       </a-layout-content>
       <a-layout-footer style="text-align: center">
-        Ant Design ©2018 Created by Ant UED
+        HAC Packaging ©2023 Created by <b>Sergio I. Zúñiga Chávez</b> IT Analyst
       </a-layout-footer>
     </a-layout>
   </a-layout>
 </template>
 
 <script setup>
-  import { useUserStore } from "./stores/user";
+import {
+  DesktopOutlined,
+  UserOutlined,
+  FileOutlined,
+} from "@ant-design/icons-vue";
+import { useUserStore } from "./stores/user";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
-  const userStore = useUserStore()
+const route         = useRoute()
+const userStore     = useUserStore();
+const collapsed     = ref(false);
+const selectedKeys  = ref(["home"]);
+
+watch(
+  () => route.name, 
+  () => {
+    selectedKeys.value = [route.name]
+  }
+)
 
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

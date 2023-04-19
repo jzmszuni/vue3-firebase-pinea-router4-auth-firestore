@@ -49,7 +49,7 @@ export const useDatabaseStore = defineStore( "database", () => {
         ...objecDoc,
       })
     } catch (error) {
-      console.error(error)
+      return error.code
     } finally {
       loading.value = false
     }
@@ -72,7 +72,7 @@ export const useDatabaseStore = defineStore( "database", () => {
       await deleteDoc(docRef)
       documents.value = documents.value.filter(item => item.id != id)
     } catch (error) {
-      console.error(error.message)
+      return error.message
     } finally {
       loading.value = false
     }
@@ -91,7 +91,7 @@ export const useDatabaseStore = defineStore( "database", () => {
       }
       return document.data().name
     } catch (error) {
-      console.error(error.message)
+      return(error.message)
     } finally {
       loading.value = false
     }
@@ -118,7 +118,7 @@ export const useDatabaseStore = defineStore( "database", () => {
       router.push('/')
 
     } catch (error) {
-      console.error(error.message)
+      return(error.message)
     } finally {
       loading.value = false
     }
