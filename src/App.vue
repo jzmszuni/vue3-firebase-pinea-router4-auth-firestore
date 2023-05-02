@@ -7,10 +7,17 @@
         theme="dark" 
         mode="inline"
       >
-        <a-menu-item key="home" v-if="userStore.userData">
+      <a-menu-item key="home" v-if="userStore.userData">
           <router-link to="/">
             <desktop-outlined />
             <span>Home</span>
+          </router-link>
+        </a-menu-item>
+
+        <a-menu-item key="profile" v-if="userStore.userData">
+          <router-link to="/profile">
+            <desktop-outlined />
+            <span>Profile</span>
           </router-link>
         </a-menu-item>
         
@@ -28,7 +35,7 @@
           </router-link>
         </a-menu-item>
         <a-menu-item key="logout" v-if="userStore.userData" @click="userStore.logoutUser">
-          logout
+          <span>logout</span>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>

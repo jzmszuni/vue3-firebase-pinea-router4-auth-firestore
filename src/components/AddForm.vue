@@ -12,7 +12,7 @@
       :rules="[
         {
           required: true,
-          message: 'Ingrese url'
+          message: 'Ingrese URL'
         },
         {
           

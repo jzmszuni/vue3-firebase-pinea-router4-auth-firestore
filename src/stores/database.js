@@ -61,14 +61,12 @@ export const useDatabaseStore = defineStore( "database", () => {
     try {
       const docRef = doc(db, 'urls', id)
       const document = await getDoc(docRef)
-      
       if(!document.exists()){
         throw new Error("No existe el documento")
       }
       if (document.data().user !== auth.currentUser.uid) {
         throw new Error("No te pertenece el documento")
       }
-      
       await deleteDoc(docRef)
       documents.value = documents.value.filter(item => item.id != id)
     } catch (error) {
@@ -123,6 +121,7 @@ export const useDatabaseStore = defineStore( "database", () => {
       loading.value = false
     }
   }
+
 
   return {
     documents,

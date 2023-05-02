@@ -1,43 +1,49 @@
 <template>
   <div>
-    <h1>Change url: {{ route.params.id }}</h1>
-    <a-form
-    name="formEdit"
-    autocomplete="off"
-    layout="vertical"
-    :model="formState"
-    @finish="onFinish"
-  >
-    <a-form-item
-      name="url"
-      label="Ingrese una URL"
-      :rules="[{
-          required: true,
-          message: 'Ingrese url'
-        }, {
-          whitespace  : true,
-          message     : 'ingrese una URL valida'
-        }, {
-          pattern: /^https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/,
-          message: 'No es una URL'
-        },
-      ]"
-    >
-      <a-input v-model:value="formState.url"></a-input>
-    </a-form-item>
+    <a-row justify="space-between" align="middle">
+      <a-col :span="8" > <h1> Change url: {{ route.params.id }} </h1> </a-col>
+      <a-col :span="4" class="text-end" style="text-align: right"><router-link to="/"> back</router-link></a-col>
+    </a-row>
+    <a-row justify="center">
+      <a-col :span="20">
+        <a-form
+          name="formEdit"
+          autocomplete="off"
+          layout="vertical"
+          :model="formState"
+          @finish="onFinish"
+        >
+          <a-form-item
+            name="url"
+            label="Ingrese una URL"
+            :rules="[{
+                required: true,
+                message: 'Ingrese URL'
+              }, {
+                whitespace  : true,
+                message     : 'ingrese una URL valida'
+              }, {
+                pattern: /^https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/,
+                message: 'No es una URL'
+              },
+            ]"
+          >
+            <a-input v-model:value="formState.url"></a-input>
+          </a-form-item>
 
-    <a-form-item>
-      <a-button 
-        type="primary" 
-        html-type="submit" 
-        :disabled="databaseStore.loading"
-        :loading="databaseStore.loading"
-      >
-        edit url
-      </a-button>
-    </a-form-item>
-
-  </a-form>
+          <a-form-item>
+            <a-button 
+              type="primary" 
+              html-type="submit" 
+              :disabled="databaseStore.loading"
+              :loading="databaseStore.loading"
+            >
+              Edit URL
+            </a-button>
+          </a-form-item>
+        </a-form>
+      </a-col>
+    </a-row>
   </div>
 </template>
 
@@ -67,10 +73,10 @@
     }
   }
 
-
   onMounted(async () => {
     formState.url = await databaseStore.detailUrl(route.params.id)
   })
+
 </script>
 
 <style lang="scss" scoped>

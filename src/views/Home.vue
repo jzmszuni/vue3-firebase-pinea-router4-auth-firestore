@@ -3,7 +3,7 @@
     
     <h1>Home</h1>
     <add-form></add-form>
-    <p v-if="databaseStore.loading">Cargando...</p>
+    <p v-if="databaseStore.loading"><a-spin tip="Loading..." /></p>
     <template v-if="!databaseStore.loading"> 
       <a-space direction="vertical" style="width: 100%;">
         <a-card 
@@ -67,7 +67,7 @@ const confirm = async (id) => {
   }
 }
 const cancel = (name) => {
-  message.info('oops! you not delete \"'+name+'\"!')
+  message.info('oops! you\'re not delete \"'+name+'\"!')
 }
 
 
