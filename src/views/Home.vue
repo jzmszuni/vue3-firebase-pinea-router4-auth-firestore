@@ -59,7 +59,7 @@ const router = useRouter();
 
 const confirm = async (id) => {
   const err = await databaseStore.deleteUrl(id)
-  console.log(err)
+  console.error(err)
   if (!err) {
     message.success('url deleted!')
   } else {
@@ -69,7 +69,6 @@ const confirm = async (id) => {
 const cancel = (name) => {
   message.info('oops! you\'re not delete \"'+name+'\"!')
 }
-
 
 databaseStore.getUrls();
 

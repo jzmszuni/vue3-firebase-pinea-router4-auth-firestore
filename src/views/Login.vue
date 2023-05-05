@@ -78,6 +78,7 @@ const onFinish = async (values) => {
 
   if(!errorCode){
     message.success('Welcome to the machine')
+    
   } else {
     switch (errorCode){
     case 'auth/user-not-found':

@@ -1,12 +1,20 @@
 <template>
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <div class="logo"></div>
+      
       <a-menu 
         v-model:selectedKeys="selectedKeys" 
         theme="dark" 
         mode="inline"
       >
+      <a-menu-item key="user" v-if="userStore.userData">
+          <router-link to="/">
+            <a-space>
+              <a-avatar :src="userStore.userData.photoURL" />
+              <span> {{ userStore.userData.displayName }}</span>
+            </a-space>
+          </router-link>
+      </a-menu-item>
       <a-menu-item key="home" v-if="userStore.userData">
           <router-link to="/">
             <desktop-outlined />

@@ -7,15 +7,16 @@ import {
 } from "firebase/auth";
 import  router          from "../router";
 import { defineStore }  from "pinia";
-import { ref }          from "vue";
-import { auth, db }     from "../firebaseConfig"
+import { ref as vueRef }          from "vue";
+import { auth, db, storage }     from "../firebaseConfig"
 import { doc, setDoc }  from "firebase/firestore/lite";
 import { useDatabaseStore } from "./database";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 export const useUserStore = defineStore("userStore", () => {
   // variables
-  const userData  = ref(null)
-  const loading   = ref(false)
+  const userData  = vueRef(null)
+  const loading   = vueRef(false)
 
   // funciones
   const setUser = async (user) => {
@@ -30,7 +31,7 @@ export const useUserStore = defineStore("userStore", () => {
       }
       await setDoc(docRef, userData.value)
     } catch (error) {
-      console.log(error)
+      console.error(error)
     } finally {
       loading.value = false
     }
@@ -61,7 +62,19 @@ export const useUserStore = defineStore("userStore", () => {
     } finally {
       loading.value = true
     }
+  }
 
+  const updateUserImg= async (image) => {
+    try {
+      const storageRef = ref(storage, `userImage/${userData.value.uid}/profile`)
+      await uploadBytes(storageRef, image.originFileObj)
+      const photoURL = await getDownloadURL(storageRef)
+      await updateProfile(auth.currentUser, {photoURL,})
+      setUser(auth.currentUser)
+    } catch (error) {
+      console.error(error)
+      return error.code
+    }
   }
 
   const loginUser = async (email, password) =>{
@@ -69,7 +82,8 @@ export const useUserStore = defineStore("userStore", () => {
     
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, password)
-      userData.value = { email: user.email, uid: user.uid }
+      // userData.value = { email: user.email, uid: user.uid }
+      await setUser(user)
       router.push("/")
     
     } catch (err) {
@@ -84,21 +98,22 @@ export const useUserStore = defineStore("userStore", () => {
   
   const logoutUser = async () => {
     loading.value = true
+    
     try {
       router.push("/login")
       await signOut(auth)
       // userData.value = null
       userData.value = null
-      const databaseStore = useDatabaseStore()
-      databaseStore.documents.values = []
     } catch (err) {
       loading.value = false
       return err.code
     } finally {
       loading.value = false
+      
+      
     }
   }
-
+ 
   const currentUser = () => {
     return new Promise(( resolve, reject ) =>{
       const unsuscribe = onAuthStateChanged(auth, async (user) => {
@@ -113,7 +128,7 @@ export const useUserStore = defineStore("userStore", () => {
         } else {
           userData.value = null
           const databaseStore = useDatabaseStore()
-          databaseStore.reset
+          databaseStore.$reset()
         }
         resolve(user)
       }, e => reject(e))
@@ -131,6 +146,7 @@ export const useUserStore = defineStore("userStore", () => {
     loginUser,
     logoutUser,
     currentUser,
+    updateUserImg,
   }
 
 })

@@ -18,7 +18,6 @@ export const useDatabaseStore = defineStore( "database", () => {
     loading.value = true
     try {
       if (documents.value.length == 0) {
-        
         const q = query(collection(db, 'urls'), where("user", "==", auth.currentUser.uid))
         const querySnapshot = await getDocs(q)
         querySnapshot.forEach( doc => {
@@ -122,6 +121,11 @@ export const useDatabaseStore = defineStore( "database", () => {
     }
   }
 
+  function $reset() {
+    documents.value = ref([])
+    loading.value   = false
+  }
+
 
   return {
     documents,
@@ -131,6 +135,7 @@ export const useDatabaseStore = defineStore( "database", () => {
     deleteUrl,
     detailUrl,
     updateUrl,
+    $reset,
   }
 
 })
