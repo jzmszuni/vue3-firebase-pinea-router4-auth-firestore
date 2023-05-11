@@ -14,6 +14,24 @@ export const useDatabaseStore = defineStore( "database", () => {
   const documents = ref([])
   const loading   = ref(false)
 
+  const getSomglelUrl = async (id) => {
+    loading.value = true
+    try {
+      const docRef = doc(db, "urls", id)
+      const document = await getDoc(docRef)
+      if(!document.exists()){
+        new Error("No existe el documento")
+        return false
+      }
+      return document.data().name
+    } catch (error) {
+      console.error(error.message)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   const getUrls = async () => {
     loading.value = true
     try {
@@ -130,6 +148,7 @@ export const useDatabaseStore = defineStore( "database", () => {
   return {
     documents,
     loading,
+    getSomglelUrl,
     getUrls,
     addUrls,
     deleteUrl,

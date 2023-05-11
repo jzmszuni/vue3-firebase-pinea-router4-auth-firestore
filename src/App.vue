@@ -52,9 +52,12 @@
       <a-layout-content style="margin: 0 16px">
         <a-breadcrumb style="margin: 16px 0">
           <a-breadcrumb-item>{{ userStore.userData?.email }}</a-breadcrumb-item>
-          <a-breadcrumb-item>Home</a-breadcrumb-item>
         </a-breadcrumb>
+        <div v-if="userStore.loading" class="box">
+            <a-spin tip="Loading..." />
+        </div>
         <div
+          v-else 
           :style="{ padding: '24px', background: '#fff', minHeight: '360px' }"
         >
           <router-view></router-view>
@@ -91,4 +94,13 @@ watch(
 
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.box {
+  margin: 0%;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

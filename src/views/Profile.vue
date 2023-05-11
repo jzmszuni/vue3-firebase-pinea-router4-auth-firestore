@@ -53,7 +53,12 @@
                   <div style="margin-top: 8px">Imagen</div>
                 </div>
               </a-upload>
-              <a-modal :visible="previewVisible" :title="previewTitle" :footer="null" @cancel="handleCancel">
+              <a-modal 
+                :visible="previewVisible" 
+                :title="previewTitle" 
+                :footer="null" 
+                @cancel="handleCancel"
+              >
                 <img alt="example" style="width: 100%" :src="previewImage" />
               </a-modal>
             </div>
@@ -63,7 +68,7 @@
             <a-button 
               type="primary" 
               html-type="submit" 
-              :disabled="userStore.loading"
+              :disabled="disabled"
               :loading="userStore.loading"
             >
               Actualizar
@@ -81,7 +86,26 @@ import { useUserStore } from "../stores/user";
 import { ref } from "vue";
 import { PlusOutlined } from '@ant-design/icons-vue';
 
-function getBase64(file) {
+
+// Variables
+const userStore = useUserStore()
+const disabled = ref(false)
+const previewVisible = ref(false);
+const previewImage = ref('');
+const previewTitle = ref('');
+const fileList = ref(
+  [
+    {
+      uid: '-1',
+      name: userStore.userData.displayName,
+      status: 'done',
+      url: userStore.userData.photoURL,
+    },
+  ]
+);
+
+// Funcion de validación de imagenes
+const getBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -90,31 +114,56 @@ function getBase64(file) {
   });
 }
 
-const userStore = useUserStore()
+// Funcion del formulario (al finalizar o submit)
 const onFinish = async () =>{
-  const error = await userStore.updateUser(userStore.userData.displayName)
-  if (fileList.value[0]) {
-    const imgError = await userStore.updateUserImg(fileList.value[0])
-    if (imgError) {
-      return message.error("Imagen no pudo ser guardada")
-    }
-  }
+  disabled.value = userStore.loading
+  const error = await userStore.updateUser(userStore.userData.displayName, fileList.value[0])
   if (!error) {
     return message.success("User updated")
   }
     message.error("oops! we can\'t update name")
 }
 
-const fileList = ref([{
-      uid: '-1',
-      name: userStore.userData.displayName,
-      status: 'done',
-      url: userStore.userData.photoURL,
-    },]);
-const previewVisible = ref(false);
-const previewImage = ref('');
-const previewTitle = ref('');
+// --> Funciones de la imagen
+// al Cancelar
+const handleCancel = () => {
+  previewVisible.value = false;
+  previewTitle.value = '';
+};
 
+// al haber cambios
+const handleChange = ({
+  file,
+  fileList,
+}) => {
+  if (fileList.length < 1) {
+    disabled.value = true
+  } else {
+    disabled.value = userStore.loading
+  }
+};
+
+// antes de guardar imagen; existe un action
+const beforeUpload = file => {
+  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt4M = file.size / 1024 / 1024 < 4;
+  // sino es imagen
+  if (!isJpgOrPng) {
+    message.error('oops! esto no es una imagen válida');
+    disabled.value = true
+    return true
+  }
+  // si pesa mas de 4MB
+  if (!isLt4M) {
+    message.error('oops! necesitamos imagenes menos pesadas ');
+    disabled.value = true
+    return true
+  }
+  disabled.value = userStore.loading
+  return isJpgOrPng && isLt4M || Upload.LIST_IGNORE;
+};
+
+// Previsualización de la imagen
 const handlePreview = async file => {
   if (!file.url && !file.preview) {
     file.preview = await getBase64(file.originFileObj);
@@ -122,28 +171,7 @@ const handlePreview = async file => {
   previewImage.value = file.url || file.preview;
   previewVisible.value = true;
   previewTitle.value = file.name || file.url.substring(file.url.lastIndexOf('/') + 1);
-};
 
-const handleChange = async data => {
-  // console.log(data)
-}
-
-const handleCancel = () => {
-  previewVisible.value = false;
-  previewTitle.value = '';
-};
-
-const beforeUpload = file => {
-  // console.log(file)
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-  if (!isJpgOrPng) {
-    message.error('oops! esto no es una imagen válida');
-  }
-  const isLt4M = file.size / 1024 / 1024 < 4;
-  if (!isLt4M) {
-    message.error('oops! necesitamos imagenes menos pesadas ');
-  }
-  return isJpgOrPng && isLt4M || Upload.LIST_IGNORE;
 };
 
 </script>

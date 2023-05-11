@@ -51,29 +51,22 @@ export const useUserStore = defineStore("userStore", () => {
     }
   }
 
-  const updateUser = async (displayName) => {
+  const updateUser = async (displayName, image=null) => {
     loading.value = true
     try {
+      if (image) {
+        const storageRef = ref(storage, `profile/${userData.value.uid}`)
+        await uploadBytes(storageRef, image.originFileObj)
+        const photoURL = await getDownloadURL(storageRef)
+        await updateProfile(auth.currentUser, {photoURL,})
+      }else {}
       // si actualizamos algo con el mismo nombre puedes omitir ponerlo
       await updateProfile(auth.currentUser, {displayName,})
       setUser(auth.currentUser)
     } catch (error) {
       return error.code
     } finally {
-      loading.value = true
-    }
-  }
-
-  const updateUserImg= async (image) => {
-    try {
-      const storageRef = ref(storage, `userImage/${userData.value.uid}/profile`)
-      await uploadBytes(storageRef, image.originFileObj)
-      const photoURL = await getDownloadURL(storageRef)
-      await updateProfile(auth.currentUser, {photoURL,})
-      setUser(auth.currentUser)
-    } catch (error) {
-      console.error(error)
-      return error.code
+      loading.value = false
     }
   }
 
@@ -146,7 +139,6 @@ export const useUserStore = defineStore("userStore", () => {
     loginUser,
     logoutUser,
     currentUser,
-    updateUserImg,
   }
 
 })

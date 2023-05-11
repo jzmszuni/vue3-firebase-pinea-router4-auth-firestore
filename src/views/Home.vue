@@ -15,6 +15,28 @@
           <template #extra>
             <a-space>
               <a :href="i.name" target="_blank">go</a>
+
+              <!-- edit -->
+              <a-button 
+                type="primary" 
+                ghost
+                @click="router.push(`edit/${i.id}`)"
+                size="small"
+              >
+                <template #icon>
+                  <form-outlined />
+                </template>
+              </a-button>
+              <!-- copy -->
+              <a-button
+                size="small"
+                @click="copyUrl(i.id)"
+              >
+                <template #icon>
+                  <copy-outlined />
+                </template>
+              </a-button>
+              <!-- delete -->
               <a-popconfirm
                 title="Are you sure delete this?"
                 ok-text="Yes"
@@ -28,16 +50,11 @@
                   :disabled="databaseStore.loading"
                   :loading="databaseStore.loading"
                 >
-                  delete
+                  <template #icon>
+                    <delete-outlined />
+                  </template>
                 </a-button>
               </a-popconfirm>
-              <a-button 
-                primary 
-                @click="router.push(`edit/${i.id}`)"
-                size="small"
-              >
-                edit
-              </a-button>
             </a-space>
           </template>
           
@@ -53,7 +70,11 @@
 import { useDatabaseStore } from "../stores/database";
 import { useRouter }        from "vue-router";
 import { message }          from 'ant-design-vue';
-
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  FormOutlined
+} from "@ant-design/icons-vue";
 const databaseStore = useDatabaseStore();
 const router = useRouter();
 
@@ -68,6 +89,21 @@ const confirm = async (id) => {
 }
 const cancel = (name) => {
   message.info('oops! you\'re not delete \"'+name+'\"!')
+}
+
+const copyUrl = async (id) => {
+  if (!navigator.clipboard) {
+    return message.error("oops! clipboard disabled!")
+  }
+
+  const path = `${window.location.origin}/${id}`
+  const err = await navigator.clipboard.writeText(path)
+  if (err) {
+    console.error(err)
+  } else {
+    message.success('url copied!')
+  }
+
 }
 
 databaseStore.getUrls();
